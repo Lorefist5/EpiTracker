@@ -7,7 +7,7 @@ using MediatR;
 
 namespace EpiTracker.Application.Features.Individuals.Commands.DeleteIndividualById;
 
-public class DeleteIndividualByIdCommandHandler : IRequestHandler<DeleteIndividualByIdCommand, Result<bool>>
+public class DeleteIndividualByIdCommandHandler : IRequestHandler<DeleteIndividualByIdCommand, HttpResult<bool>>
 {
     private readonly IIndividualRepository _individualRepository;
     private readonly IValidator<Id> _idValidator;
@@ -16,13 +16,15 @@ public class DeleteIndividualByIdCommandHandler : IRequestHandler<DeleteIndividu
         _individualRepository = individualRepository;
         _idValidator = idValidator;
     }
-    public async Task<Result<bool>> Handle(DeleteIndividualByIdCommand request, CancellationToken cancellationToken)
+    public async Task<HttpResult<bool>> Handle(DeleteIndividualByIdCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await _idValidator.ValidateAsync(request.Id);
         if (validationResult.IsValid is false)
-            return validationResult.Errors.ToDomainErrors();
+            return validationResult.Errors.ToHttpDomainErrors();
 
         var individualDeleteResult = await _individualRepository.DeleteIndividualAsync(request.Id.Value, cancellationToken);
+        if(individualDeleteResult.IsFailure)
+            return individualDeleteResult;
 
         return individualDeleteResult;
     }

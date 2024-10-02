@@ -4,4 +4,4 @@ using MediatR;
 
 namespace EpiTracker.Application.Features.Individuals.Commands.DeleteIndividualById;
 
-public record DeleteIndividualByIdCommand(Id Id) : IRequest<Result<bool>>;
+public record DeleteIndividualByIdCommand(Id Id) : IRequest<HttpResult<bool>>;

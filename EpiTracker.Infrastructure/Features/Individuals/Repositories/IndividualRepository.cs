@@ -1,4 +1,6 @@
-﻿using EpiTracker.Domain.Features.Individuals.Dtos;
+﻿using DefaultCoreLibrary.Core;
+using EpiTracker.Domain.Features.Individuals.Dtos;
+using EpiTracker.Domain.Features.Individuals.Errors;
 using EpiTracker.Domain.Features.Individuals.Exceptions;
 using EpiTracker.Domain.Features.Individuals.Interfaces;
 using EpiTracker.Domain.Features.Individuals.Models;
@@ -16,7 +18,7 @@ public class IndividualRepository : IIndividualRepository
         _context = context;
     }
 
-    public async Task<int> CreateIndividualAsync(CreateIndividualDto individual, CancellationToken cancellationToken)
+    public async Task<Result<int>> CreateIndividualAsync(CreateIndividualDto individual, CancellationToken cancellationToken)
     {
         Individual newIndividual = new()
         {
@@ -26,29 +28,30 @@ public class IndividualRepository : IIndividualRepository
             DateDiagnosed = individual.DateDiagnosed,
             IsDiagnosed = individual.IsDiagnosed
         };
-
-        await _context.Individuals.AddAsync(newIndividual, cancellationToken);
-
-        // Save changes to the database
-        await _context.SaveChangesAsync(cancellationToken);
-
+        try
+        {
+            await _context.Individuals.AddAsync(newIndividual, cancellationToken);
+            // Save changes to the database
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            return ex;
+        }
         // Return the ID of the newly created individual
         return newIndividual.Id;
     }
 
-    public async Task<bool> DeleteIndividualAsync(int id, CancellationToken cancellationToken)
+    public async Task<HttpResult<bool>> DeleteIndividualAsync(int id, CancellationToken cancellationToken)
     {
         var individualSearchResult = await _context.Individuals.FindAsync(id);
         if (individualSearchResult is null)
-        {
-            throw new IndividualNotFoundException(id);
-        }
-        _context.Individuals.Remove(individualSearchResult);
+            return IndividualErrors.IndividualNotFound(id);
 
-        // Save changes and get the result (number of affected entries)
+        _context.Individuals.Remove(individualSearchResult);
         var changes = await _context.SaveChangesAsync(cancellationToken);
 
-        // If at least one change was made (i.e., the individual was deleted), return true
         return changes > 0;
     }
 
@@ -61,9 +64,34 @@ public class IndividualRepository : IIndividualRepository
         return GetIndividualDto.FromDomainIndividual(individualSearchResult);
     }
 
-    public Task<List<GetIndividualDto>> GetIndividualsAsync(CancellationToken cancellationToken)
-        => _context.Individuals
+    public async Task<IEnumerable<GetIndividualDto>> GetIndividualsAsync(CancellationToken cancellationToken)
+        => await _context.Individuals
             .Select(x => GetIndividualDto.FromDomainIndividual(x))
             .ToListAsync(cancellationToken);
-    
+
+    public async Task<HttpResult<bool>> UpdateIndividualAsync(int id, UpdateIndividualDto individual, CancellationToken cancellationToken)
+    {
+        var individualSearchResult = await _context.Individuals.FindAsync(id);
+        if (individualSearchResult is null)
+            return IndividualErrors.IndividualNotFound(id);
+        // Change the individuals properties
+        individualSearchResult.Name = individual.Name;
+        individualSearchResult.Age = individual.Age;
+        individualSearchResult.Symptoms = individual.Symptoms;
+        individualSearchResult.DateDiagnosed = individual.DateDiagnosed;
+        individualSearchResult.IsDiagnosed = individual.DateDiagnosed is not null;
+        
+        // Finalize the update
+        _context.Individuals.Update(individualSearchResult);
+        try
+        {
+            var saveChangesAsyncResult = await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            return ex; // Return the exception as a new HttpResultError with status code of internal error
+        }
+
+        return true;
+    }
 }
