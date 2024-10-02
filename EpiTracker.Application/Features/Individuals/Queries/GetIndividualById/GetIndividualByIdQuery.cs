@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EpiTracker.Application.Features.Individuals.Queries.GetIndividualById;
 
-public record GetIndividualByIdQuery(Id Id) : IRequest<Result<GetIndividualByIdQueryResponse>>;
+public record GetIndividualByIdQuery(Id Id) : IRequest<HttpResult<GetIndividualByIdQueryResponse>>;

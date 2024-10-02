@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EpiTracker.Infrastructure",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{D3138F26-97D4-4A6E-9CF3-1F9318E19CF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpiTracker.Aspire.AppHost", "EpiTracker.Aspire\EpiTracker.Aspire.AppHost\EpiTracker.Aspire.AppHost.csproj", "{D575ED50-9E7C-4ABB-9004-C91B5AFB3264}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EpiTracker.Aspire.AppHost", "EpiTracker.Aspire\EpiTracker.Aspire.AppHost\EpiTracker.Aspire.AppHost.csproj", "{D575ED50-9E7C-4ABB-9004-C91B5AFB3264}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EpiTracker.Aspire.ServiceDefaults", "EpiTracker.Aspire\EpiTracker.Aspire.ServiceDefaults\EpiTracker.Aspire.ServiceDefaults.csproj", "{1EC2C07C-46F9-473F-BEB7-66E9898DA173}"
 EndProject

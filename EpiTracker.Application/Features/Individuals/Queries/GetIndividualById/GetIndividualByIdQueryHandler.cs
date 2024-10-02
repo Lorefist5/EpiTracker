@@ -8,7 +8,7 @@ using MediatR;
 
 namespace EpiTracker.Application.Features.Individuals.Queries.GetIndividualById;
 
-public class GetIndividualByIdQueryHandler : IRequestHandler<GetIndividualByIdQuery, Result<GetIndividualByIdQueryResponse>>
+public class GetIndividualByIdQueryHandler : IRequestHandler<GetIndividualByIdQuery, HttpResult<GetIndividualByIdQueryResponse>>
 {
     private readonly IIndividualRepository _individualRepository;
     private readonly IValidator<Id> _idValidator;
@@ -18,11 +18,11 @@ public class GetIndividualByIdQueryHandler : IRequestHandler<GetIndividualByIdQu
         _idValidator = requestValidator;
     }
 
-    public async Task<Result<GetIndividualByIdQueryResponse>> Handle(GetIndividualByIdQuery request, CancellationToken cancellationToken)
+    public async Task<HttpResult<GetIndividualByIdQueryResponse>> Handle(GetIndividualByIdQuery request, CancellationToken cancellationToken)
     {
         var validationResult = await _idValidator.ValidateAsync(request.Id);
         if (validationResult.IsValid is false)
-            return validationResult.Errors.ToDomainErrors();
+            return validationResult.Errors.ToHttpDomainErrors();
 
         var individualFetchByIdResult = await _individualRepository.GetIndividualByIdAsync(request.Id.Value, cancellationToken);
         if (individualFetchByIdResult is null)
