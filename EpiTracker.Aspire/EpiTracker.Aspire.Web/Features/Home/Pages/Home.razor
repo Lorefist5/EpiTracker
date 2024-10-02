@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Epidemiology Tracker</h1>
+    <p class="lead">We offer the best solutions for tracking and analyzing epidemiological data.</p>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Individuals</h5>
+                <p class="card-text">View and manage individual records.</p>
+                <NavLink href="individuals" class="btn btn-primary">Go to Individuals</NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Individuals Statistics</h5>
+                <p class="card-text">Analyze statistics of individuals.</p>
+                <NavLink href="individuals-statistics" class="btn btn-primary">Go to Individuals Statistics</NavLink>
+            </div>
+        </div>
+    </div>
+</div>

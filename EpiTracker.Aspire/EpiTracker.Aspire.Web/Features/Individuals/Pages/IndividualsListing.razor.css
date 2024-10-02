@@ -1,0 +1,67 @@
+﻿.individual-card {
+    min-height: 200px;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding-top: 30px; /* Add padding to the top to make space for the icons */
+}
+
+    .individual-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    }
+
+    .individual-card .delete-icon,
+    .individual-card .edit-icon {
+        display: none;
+        position: absolute;
+        background: none;
+        border: none;
+        color: #999;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .individual-card:hover .delete-icon,
+    .individual-card:hover .edit-icon {
+        display: block;
+    }
+
+.delete-icon:hover,
+.edit-icon:hover {
+    color: #333;
+}
+
+.individual-card .delete-icon {
+    top: 10px; /* Add some space from the top */
+    right: 10px; /* Add some space from the right */
+}
+
+.individual-card .edit-icon {
+    top: 1px; /* Add some space from the top */
+    left: 5px; /* Add some space from the left */
+}
+
+.view-button {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+    .view-button:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+.description-text {
+    color: #6c757d; /* Grayish color */
+}
+
+    .description-text.short {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }

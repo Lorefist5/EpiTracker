@@ -1,5 +1,6 @@
-using EpiTracker.Aspire.Web;
-using EpiTracker.Aspire.Web.Components;
+using EpiTracker.Aspire.Web.Config;
+using EpiTracker.Aspire.Web.Features.Individuals.Services;
+using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +13,12 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddOutputCache();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
+builder.Services.AddRefitClient<IIndividualApi>()
+    .ConfigureHttpClient(client =>
     {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("https+http://apiservice");
+        client.BaseAddress = new Uri("https+http://apiservice");
     });
+
 
 var app = builder.Build();
 

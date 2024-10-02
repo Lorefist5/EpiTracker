@@ -1,0 +1,94 @@
+﻿@page "/individuals"
+@using EpiTracker.Aspire.Web.Features.Individuals.Services
+@using EpiTracker.Domain.Features.Individuals.Dtos
+@using EpiTracker.Domain.Features.Individuals.Models
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@inject IIndividualApi IndividualsApi
+
+
+<PageTitle>Individuals</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-3 align-items-center">
+        <div class="col-6">
+            <h3>Individuals List</h3>
+        </div>
+        <div class="col-6 text-end">
+            <NavLink href="individuals/create" class="btn btn-success">
+                <i class="bi bi-plus-lg"></i> Create New Individual
+            </NavLink>
+        </div>
+    </div>
+
+    @if (individuals == null)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <em>Loading...</em>
+                </div>
+            </div>
+        </div>
+    }
+    else if (individuals.Count == 0)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    <em>No individuals found</em>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var individual in individuals)
+            {
+                <div class="col-md-3">
+                    <div class="card mb-3 shadow-sm position-relative individual-card">
+                        <div class="card-body">
+                            <h5 class="card-title">@individual.Name</h5>
+                            <p class="card-text description-text">@individual.Age</p>
+
+                            <!-- View Button at Bottom Left -->
+                            <a href="individuals/view/@individual.Id" class="btn btn-primary btn-sm view-button">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </div>
+
+                        <!-- X (Delete) Icon at Top Right, appears on hover -->
+                        <button class="delete-icon" @onclick="() => DeleteIndividual(individual.Id)">&times;</button>
+
+                        <!-- Edit Icon at Top Left, appears on hover -->
+                        <button class="edit-icon" @onclick="() => EditIndividual(individual.Id)">✎</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<GetIndividualDto> individuals = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var individualsFetched = await IndividualsApi.GetIndividualsAsync();
+        individuals = individualsFetched.ToList();
+    }
+
+    private async Task DeleteIndividual(int individualId)
+    {
+        Console.WriteLine(individualId);
+        await IndividualsApi.DeleteIndividualByIdAsync(individualId);
+        individuals = individuals.Where(i => i.Id != individualId).ToList();
+    }
+
+    private void EditIndividual(int individualId)
+    {
+        // Navigate to the edit page
+        //NavigationManager.NavigateTo($"individuals/edit/{individualId}");
+    }
+}

@@ -7,7 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\EpiTracker.Application\EpiTracker.Application.csproj" />
     <ProjectReference Include="..\EpiTracker.Aspire.ServiceDefaults\EpiTracker.Aspire.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Individuals\Components\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Refit" Version="7.2.1" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="7.2.1" />
   </ItemGroup>
 
 </Project>
