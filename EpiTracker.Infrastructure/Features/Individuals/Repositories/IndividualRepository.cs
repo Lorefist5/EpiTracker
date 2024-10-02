@@ -27,9 +27,13 @@ public class IndividualRepository : IIndividualRepository
             IsDiagnosed = individual.IsDiagnosed
         };
 
-        await _context.Individuals.AddAsync(newIndividual);
-        var changesResults = await _context.SaveChangesAsync(cancellationToken);
-        return changesResults;
+        await _context.Individuals.AddAsync(newIndividual, cancellationToken);
+
+        // Save changes to the database
+        await _context.SaveChangesAsync(cancellationToken);
+
+        // Return the ID of the newly created individual
+        return newIndividual.Id;
     }
 
     public async Task<bool> DeleteIndividualAsync(int id, CancellationToken cancellationToken)
