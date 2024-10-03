@@ -1,5 +1,7 @@
 using EpiTracker.Aspire.Web.Config;
 using EpiTracker.Aspire.Web.Features.Individuals.Services;
+using MudBlazor;
+using MudBlazor.Services;
 using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +20,13 @@ builder.Services.AddRefitClient<IIndividualApi>()
     {
         client.BaseAddress = new Uri("https+http://apiservice");
     });
+builder.Services.AddServerSideBlazor()
+    .AddCircuitOptions(options => { options.DetailedErrors = true; });
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
 
+});
 
 var app = builder.Build();
 

@@ -1,31 +1,55 @@
-﻿@using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
+﻿@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@using static MudBlazor.Icons.Material
 @page "/"
 
 <PageTitle>Home</PageTitle>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to Epidemiology Tracker</h1>
-    <p class="lead">We offer the best solutions for tracking and analyzing epidemiological data.</p>
-</div>
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Welcome to Epidemiology Tracker</MudText>
+    <MudText Typo="Typo.h6" Align="Align.Center" GutterBottom="true">
+        We provide advanced tools for tracking and analyzing epidemiological data to support public health efforts and manage diseases.
+    </MudText>
+    <MudDivider />
 
-<div class="row mt-5">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <h5 class="card-title">Individuals</h5>
-                <p class="card-text">View and manage individual records.</p>
-                <NavLink href="individuals" class="btn btn-primary">Go to Individuals</NavLink>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <h5 class="card-title">Individuals Statistics</h5>
-                <p class="card-text">Analyze statistics of individuals.</p>
-                <NavLink href="individuals-statistics" class="btn btn-primary">Go to Individuals Statistics</NavLink>
-            </div>
-        </div>
-    </div>
-</div>
+    <MudText Typo="Typo.body1" Align="Align.Center" Class="mt-3">
+        Epidemiology Tracker is a cutting-edge platform designed to help healthcare providers and public health authorities track the symptoms of individuals and monitor the progression of diseases. Our system enables users to manage individual records, track the dates of diagnoses, and analyze the spread of symptoms in a population. By providing accurate and timely data, we aim to enhance the response to outbreaks and improve overall healthcare outcomes.
+    </MudText>
+
+    <MudGrid Class="mt-5" GutterSize="GutterSize.Small">
+        <MudItem xs="12" md="6">
+            <MudCard Class="shadow-md">
+                <MudCardContent>
+                    <MudText Typo="Typo.h5" Align="Align.Center">Individuals</MudText>
+                    <MudText Typo="Typo.body2" Align="Align.Center" Class="mt-2">View and manage individual patient records.</MudText>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-content-center">
+                    <MudButton Link="true" Href="individuals" Variant="Variant.Filled" Color="Color.Primary">
+                        Go to Individuals
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudCard Class="shadow-md">
+                <MudCardContent>
+                    <MudText Typo="Typo.h5" Align="Align.Center">Individuals Statistics</MudText>
+                    <MudText Typo="Typo.body2" Align="Align.Center" Class="mt-2">Analyze statistics related to patient records and diagnoses.</MudText>
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-content-center">
+                    <MudButton Link="true" Href="individuals-statistics" Variant="Variant.Filled" Color="Color.Primary">
+                        Go to Individuals Statistics
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider Class="mt-5" />
+
+    <MudText Typo="Typo.body1" Align="Align.Center" Class="mt-4">
+        The system is designed to help public health professionals track symptoms and the dates of diagnosis for patients. You can view individual records, track the progression of symptoms over time, and analyze the statistics related to public health trends.
+    </MudText>
+</MudContainer>
+
