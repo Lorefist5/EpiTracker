@@ -18,7 +18,7 @@ Running the Project
 
 1.  Clone the repository to your local machine:
 
-    git clone https://github.com/your-username/epi-tracker.git
+    git clone https://github.com/your-username/epi-tracker.git or download the zip file of the code and click on the .sln file to open with visual studio
 
 3.  Open the project in the latest version of Visual Studio.
 4.  Build the solution to ensure all dependencies are restored and the project is ready to run.
