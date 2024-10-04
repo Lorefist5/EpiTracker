@@ -46,14 +46,23 @@
 
             <!-- Date Diagnosed Field with Validation Error -->
             <MudItem xs="12">
-                <MudDatePicker Label="Date Diagnosed (Optional)"
-                               @bind-Date="model.DateDiagnosed"
-                               Class="mb-3"
-                               Validation="@(() => ValidateProperty(nameof(model.DateDiagnosed)))" />
-                @if (validationErrors.ContainsKey(nameof(model.DateDiagnosed)))
-                {
-                    <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.DateDiagnosed)]</MudText>
-                }
+                <MudGrid Spacing="2">
+                    <MudItem xs="10">
+                        <MudDatePicker Mask="@(new DateMask("MM/dd/yyyy"))" DateFormat="MM/dd/yyyy" Editable="true" Label="Date Diagnosed (Optional)"
+                                       @bind-Date="model.DateDiagnosed"
+                                       Class="mb-3"
+                                       Validation="@(() => ValidateProperty(nameof(model.DateDiagnosed)))" />
+                        @if (validationErrors.ContainsKey(nameof(model.DateDiagnosed)))
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.DateDiagnosed)]</MudText>
+                        }
+                    </MudItem>
+                    <MudItem xs="2" Class="d-flex align-items-center">
+                        <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="ClearDate">
+                            Clear
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
             </MudItem>
 
             <!-- Dynamic Symptoms Section -->
@@ -204,5 +213,9 @@
 
         success = true;
         await OnSubmit.InvokeAsync(model); // Trigger the parent event
+    }
+    private void ClearDate()
+    {
+        model.DateDiagnosed = null;
     }
 }
