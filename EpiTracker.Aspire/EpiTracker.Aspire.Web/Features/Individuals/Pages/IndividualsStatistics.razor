@@ -1,0 +1,87 @@
+﻿@page "/individuals/statistics"
+@using EpiTracker.Aspire.Web.Features.Individuals.Services
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@inject IIndividualApi IndividualApi
+<MudContainer>
+    <!-- Diagnosis Date Statistics Section -->
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h5">Diagnosis Date Statistics (By Month)</MudText>
+            <MudChart ChartType="ChartType.Line" ChartSeries="@diagnosisDateSeries" XAxisLabels="@diagnosisDateLabels" />
+        </MudCardContent>
+    </MudCard>
+
+    <!-- Most Common Symptoms Section -->
+    <MudCard Class="mt-4">
+        <MudCardContent>
+            <MudText Typo="Typo.h5">Most Common Symptoms</MudText>
+            <MudChart ChartType="ChartType.Bar" ChartSeries="@symptomsSeries" XAxisLabels="@symptomsLabels" />
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private List<ChartSeries> diagnosisDateSeries = new();
+    private string[] diagnosisDateLabels = Array.Empty<string>();
+    private List<ChartSeries> symptomsSeries = new();
+    private string[] symptomsLabels = Array.Empty<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDiagnosisDateStatisticsByMonth();
+        await LoadMostCommonSymptoms();
+    }
+
+    private async Task LoadDiagnosisDateStatisticsByMonth()
+    {
+        try
+        {
+            var diagnosisDateStats = await IndividualApi.GetDiagnosisDateStatisticsAsync();
+            if (diagnosisDateStats.DiagnosisDateStatistics.Any())
+            {
+                // Group data by month
+                var groupedByMonth = diagnosisDateStats.DiagnosisDateStatistics
+                    .GroupBy(d => new DateTime(d.Key.Year, d.Key.Month, 1)) // Group by year and month
+                    .ToDictionary(g => g.Key, g => g.Sum(v => v.Value));   // Sum up diagnoses for each month
+
+                // Format X-axis labels as "MMM yyyy" (e.g., "Jan 2023")
+                diagnosisDateLabels = groupedByMonth.Keys
+                                      .Select(d => d.ToString("MMM yyyy"))
+                                      .ToArray();
+
+                // Series data for Y-axis (diagnosis count per month)
+                diagnosisDateSeries.Add(new ChartSeries
+                    {
+                        Name = "Diagnoses",
+                        Data = groupedByMonth.Values.Select(v => (double)v).ToArray()
+                    });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading diagnosis date statistics: {ex.Message}");
+        }
+    }
+
+    private async Task LoadMostCommonSymptoms()
+    {
+        try
+        {
+            var symptomsStats = await IndividualApi.GetMostCommonSymptomsAsync();
+            if (symptomsStats.SymptomsStatistics.Any())
+            {
+                symptomsLabels = symptomsStats.SymptomsStatistics.Keys.ToArray();
+                symptomsSeries.Add(new ChartSeries
+                    {
+                        Name = "Symptoms Count",
+                        Data = symptomsStats.SymptomsStatistics.Values.Select(v => (double)v).ToArray()
+                    });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading most common symptoms statistics: {ex.Message}");
+        }
+    }
+}

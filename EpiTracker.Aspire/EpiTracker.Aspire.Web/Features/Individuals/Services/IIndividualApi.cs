@@ -1,4 +1,6 @@
-﻿using EpiTracker.Domain.Features.Individuals.Dtos;
+﻿using EpiTracker.Application.Features.Individuals.Queries.GetDiagnosisDateStatistics;
+using EpiTracker.Application.Features.Individuals.Queries.GetMostCommonSymptoms;
+using EpiTracker.Domain.Features.Individuals.Dtos;
 using Refit;
 
 namespace EpiTracker.Aspire.Web.Features.Individuals.Services;
@@ -19,4 +21,11 @@ public interface IIndividualApi
 
     [Put("/api/individuals/{userId}")]
     Task<HttpResponseMessage> UpdateIndividualByIdAsync(int userId, [Body] UpdateIndividualDto updateRequest, CancellationToken cancellationToken = default);
+
+    [Get("/api/individual/statistics/GetDiagnosisDateStatistics")]
+    Task<GetDiagnosisDateStatisticsResponse> GetDiagnosisDateStatisticsAsync(CancellationToken cancellationToken = default);
+
+    [Get("/api/individual/statistics/GetMostCommonSymptoms")]
+    Task<GetMostCommonSymptomsQueryResponse> GetMostCommonSymptomsAsync(CancellationToken cancellationToken = default);
+
 }
