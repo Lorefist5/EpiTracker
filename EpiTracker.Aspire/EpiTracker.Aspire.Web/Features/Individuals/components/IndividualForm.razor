@@ -1,0 +1,208 @@
+@using Blazored.FluentValidation
+@using EpiTracker.Application.Features.Individuals.Commands.CreateIndividual
+@using EpiTracker.Domain.Features.Individuals.Dtos
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+<MudContainer Class="pa-4">
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+        <MudGrid Spacing="3">
+
+            @if (!string.IsNullOrWhiteSpace(serverError))
+            {
+                <!-- Display the server error in a noticeable way -->
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h6" Color="Color.Error" Align="Align.Center">
+                        @serverError
+                    </MudText>
+                </MudItem>
+            }
+
+            <!-- Name Field with Validation Error -->
+            <MudItem xs="12">
+                <MudTextField Label="Name"
+                              @bind-Value="model.Name"
+                              Immediate="true"
+                              Class="mb-3"
+                              Validation="@(() => ValidateProperty(nameof(model.Name)))" />
+                @if (validationErrors.ContainsKey(nameof(model.Name)))
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.Name)]</MudText>
+                }
+            </MudItem>
+
+            <!-- Age Field with Validation Error -->
+            <MudItem xs="12">
+                <MudTextField Label="Age"
+                              @bind-Value="model.Age"
+                              Immediate="true"
+                              Class="mb-3"
+                              InputType="InputType.Number"
+                              Validation="@(() => ValidateProperty(nameof(model.Age)))" />
+                @if (validationErrors.ContainsKey(nameof(model.Age)))
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.Age)]</MudText>
+                }
+            </MudItem>
+
+            <!-- Date Diagnosed Field with Validation Error -->
+            <MudItem xs="12">
+                <MudDatePicker Label="Date Diagnosed (Optional)"
+                               @bind-Date="model.DateDiagnosed"
+                               Class="mb-3"
+                               Validation="@(() => ValidateProperty(nameof(model.DateDiagnosed)))" />
+                @if (validationErrors.ContainsKey(nameof(model.DateDiagnosed)))
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.DateDiagnosed)]</MudText>
+                }
+            </MudItem>
+
+            <!-- Dynamic Symptoms Section -->
+            <MudItem xs="12">
+                <MudTextField Label="New Symptom"
+                              @bind-Value="newSymptom"
+                              Placeholder="Enter a symptom..."
+                              Class="mb-3" />
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AddSymptom" Disabled="@(string.IsNullOrWhiteSpace(newSymptom))">
+                    Add Symptom
+                </MudButton>
+            </MudItem>
+
+            <!-- Symptoms List with Edit Feature -->
+            <MudItem xs="12">
+                <MudGrid Spacing="2">
+                    @foreach (var symptom in model.Symptoms)
+                    {
+                        <MudItem xs="12">
+                            <MudPaper Class="pa-2 mb-2" Elevation="2">
+                                <MudGrid>
+                                    <MudItem xs="10">
+                                        @if (editingSymptom == symptom)
+                                        {
+                                            <MudTextField @bind-Value="editingSymptomValue" Label="Edit Symptom" />
+                                            <MudButton Color="Color.Primary" OnClick="() => SaveSymptom(symptom)">Save</MudButton>
+                                        }
+                                        else
+                                        {
+                                            <MudText Typo="Typo.body1">@symptom</MudText>
+                                        }
+                                    </MudItem>
+                                    <MudItem xs="2">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="() => StartEditSymptom(symptom)" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => RemoveSymptom(symptom)" />
+                                    </MudItem>
+                                </MudGrid>
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+                @if (validationErrors.ContainsKey(nameof(model.Symptoms)))
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.Symptoms)]</MudText>
+                }
+            </MudItem>
+
+            <!-- Submit Button -->
+            <MudItem xs="12">
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true" Class="mt-3">
+                    @ButtonText
+                </MudButton>
+            </MudItem>
+
+            @if (success)
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h6" Color="Color.Success" Align="Align.Center" Class="mt-3">
+                        Individual Created Successfully!
+                    </MudText>
+                </MudItem>
+            }
+        </MudGrid>
+    </EditForm>
+</MudContainer>
+
+@code {
+    [Parameter] public CreateIndividualDto model { get; set; } = new CreateIndividualDto("", 0, new List<string>(), null);
+    [Parameter] public EventCallback<CreateIndividualDto> OnSubmit { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Submit";
+
+    private string newSymptom = string.Empty;
+    private bool success;
+    private string serverError = "";
+    private string? editingSymptom = null;
+    private string editingSymptomValue = "";
+    private CreateIndividualDtoValidator validator = new CreateIndividualDtoValidator();
+    private FluentValidationValidator? fvValidator;
+
+    // Store validation errors
+    private Dictionary<string, string> validationErrors = new();
+
+    private void AddSymptom()
+    {
+        if (!string.IsNullOrWhiteSpace(newSymptom) && !model.Symptoms.Contains(newSymptom))
+        {
+            model.Symptoms.Add(newSymptom);
+            newSymptom = string.Empty;
+        }
+    }
+
+    private void RemoveSymptom(string symptom)
+    {
+        model.Symptoms.Remove(symptom);
+    }
+
+    // Start editing a symptom
+    private void StartEditSymptom(string symptom)
+    {
+        editingSymptom = symptom;
+        editingSymptomValue = symptom;
+    }
+
+    // Save the edited symptom
+    private void SaveSymptom(string originalSymptom)
+    {
+        if (!string.IsNullOrWhiteSpace(editingSymptomValue) && originalSymptom != editingSymptomValue)
+        {
+            int index = model.Symptoms.IndexOf(originalSymptom);
+            if (index >= 0)
+            {
+                model.Symptoms[index] = editingSymptomValue;
+            }
+        }
+        editingSymptom = null;
+        editingSymptomValue = "";
+    }
+
+    // Perform validation and display errors
+    private IEnumerable<string> ValidateProperty(string propertyName)
+    {
+        var validationResult = validator.Validate(model);
+        validationErrors.Clear();
+        foreach (var error in validationResult.Errors)
+        {
+            validationErrors[error.PropertyName] = error.ErrorMessage;
+        }
+
+        var propertyErrors = validationResult.Errors.Where(e => e.PropertyName == propertyName);
+        return propertyErrors.Select(e => e.ErrorMessage);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var validationResult = await validator.ValidateAsync(model);
+
+        validationErrors.Clear();
+        serverError = "";
+        if (!validationResult.IsValid)
+        {
+            success = false;
+            foreach (var error in validationResult.Errors)
+            {
+                validationErrors[error.PropertyName] = error.ErrorMessage;
+            }
+            return;
+        }
+
+        success = true;
+        await OnSubmit.InvokeAsync(model); // Trigger the parent event
+    }
+}
