@@ -36,7 +36,7 @@ public static class IndividualApi
                 return Results.BadRequest(result.Errors);
             }
 
-            return Results.Ok(result.Value);
+            return Results.Ok(result.Value.Individual);
         });
 
         group.MapPost("/", async (CreateIndividualDto creationRequest, IMediator mediator, HttpContext http) =>
