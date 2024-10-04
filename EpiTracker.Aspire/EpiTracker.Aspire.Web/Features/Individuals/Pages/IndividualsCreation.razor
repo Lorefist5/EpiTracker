@@ -1,157 +1,33 @@
 ﻿@page "/individuals/create"
-@using EpiTracker.Application.Features.Individuals.Commands.CreateIndividual
+@using EpiTracker.Aspire.Web.Features.Individuals.Services
+@using EpiTracker.Aspire.Web.Features.Individuals.components
 @using EpiTracker.Domain.Features.Individuals.Dtos
-@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
-@using FluentValidation
-@using Blazored.FluentValidation
+@inject IIndividualApi IndividualApi
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
-@using System.ComponentModel.DataAnnotations
+
 
 <PageTitle>Create Individual</PageTitle>
-<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
 
-    <MudGrid>
-        <!-- Name Field with Validation Error -->
-        <MudItem xs="12">
-            <MudTextField Label="Name"
-                          @bind-Value="model.Name"
-                          Immediate="true"
-                          Validation="@(() => ValidateProperty(nameof(model.Name)))" />
-            @if (validationErrors.ContainsKey(nameof(model.Name)))
-            {
-                <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.Name)]</MudText>
-            }
-        </MudItem>
 
-        <!-- Age Field with Validation Error -->
-        <MudItem xs="12">
-            <MudTextField Label="Age"
-                          @bind-Value="model.Age"
-                          Immediate="true"
-                          InputType="InputType.Number"
-                          Validation="@(() => ValidateProperty(nameof(model.Age)))" />
-            @if (validationErrors.ContainsKey(nameof(model.Age)))
-            {
-                <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.Age)]</MudText>
-            }
-        </MudItem>
-
-        <!-- Date Diagnosed Field with Validation Error -->
-        <MudItem xs="12">
-            <MudDatePicker Label="Date Diagnosed (Optional)"
-                           @bind-Date="model.DateDiagnosed"
-                           Validation="@(() => ValidateProperty(nameof(model.DateDiagnosed)))" />
-            @if (validationErrors.ContainsKey(nameof(model.DateDiagnosed)))
-            {
-                <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.DateDiagnosed)]</MudText>
-            }
-        </MudItem>
-
-        <!-- Dynamic Symptoms Section -->
-        <MudItem xs="12">
-            <MudTextField Label="New Symptom"
-                          @bind-Value="newSymptom"
-                          Placeholder="Enter a symptom..." />
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AddSymptom">Add Symptom</MudButton>
-        </MudItem>
-
-        <!-- Symptoms List -->
-        <MudItem xs="12">
-            <MudGrid Spacing="2">
-                @foreach (var symptom in model.Symptoms)
-                {
-                    <MudItem xs="12">
-                        <MudPaper Class="pa-2" Elevation="2">
-                            <MudGrid>
-                                <MudItem xs="10">
-                                    <MudText Typo="Typo.body1">@symptom</MudText>
-                                </MudItem>
-                                <MudItem xs="2">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => RemoveSymptom(symptom)" />
-                                </MudItem>
-                            </MudGrid>
-                        </MudPaper>
-                    </MudItem>
-                }
-            </MudGrid>
-            @if (validationErrors.ContainsKey(nameof(model.Symptoms)))
-            {
-                <MudText Typo="Typo.caption" Color="Color.Error">@validationErrors[nameof(model.Symptoms)]</MudText>
-            }
-        </MudItem>
-
-        <!-- Submit Button -->
-        <MudItem xs="12">
-            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Create Individual</MudButton>
-        </MudItem>
-
-        @if (success)
-        {
-            <MudItem xs="12">
-                <MudText Typo="Typo.h6" Color="Color.Success" Align="Align.Center">Individual Created Successfully!</MudText>
-            </MudItem>
-        }
-    </MudGrid>
-</EditForm>
+<IndividualForm model="@model" ButtonText="Create Individual" OnSubmit="HandleCreateSubmit" />
 
 @code {
-    private CreateIndividualDto model = new CreateIndividualDto("", 0, new List<string>(), null);
-    private string newSymptom = string.Empty;
-    private bool success;
-    private CreateIndividualDtoValidator validator = new CreateIndividualDtoValidator();
-    private FluentValidationValidator? fvValidator;
-    
-    // Store validation errors
-    private Dictionary<string, string> validationErrors = new();
+    private CreateIndividualDto model = new CreateIndividualDto();
 
-    private void AddSymptom()
+    private async Task HandleCreateSubmit(CreateIndividualDto individual)
     {
-        if (!string.IsNullOrWhiteSpace(newSymptom) && !model.Symptoms.Contains(newSymptom))
+        var response = await IndividualApi.CreateIndividualAsync(individual);
+        if (response.IsSuccessStatusCode)
         {
-            model.Symptoms.Add(newSymptom);
-            newSymptom = string.Empty;
-        }
-    }
-
-    private void RemoveSymptom(string symptom)
-    {
-        model.Symptoms.Remove(symptom);
-    }
-
-    // Perform validation and display errors
-    private IEnumerable<string> ValidateProperty(string propertyName)
-    {
-        var validationResult = validator.Validate(model);
-        validationErrors.Clear();  // Clear previous errors
-        foreach (var error in validationResult.Errors)
-        {
-            validationErrors[error.PropertyName] = error.ErrorMessage;
-        }
-
-        var propertyErrors = validationResult.Errors.Where(e => e.PropertyName == propertyName);
-        return propertyErrors.Select(e => e.ErrorMessage);
-    }
-
-    private async Task OnValidSubmit(EditContext context)
-    {
-        var validationResult = await validator.ValidateAsync(model);
-
-        validationErrors.Clear();
-        if (validationResult.IsValid)
-        {
-            success = true;
+            Snackbar.Add("Individual Created Successfully!", Severity.Success);
+            NavigationManager.NavigateTo("/individuals");
         }
         else
         {
-            success = false;
-            foreach (var error in validationResult.Errors)
-            {
-                validationErrors[error.PropertyName] = error.ErrorMessage;
-                Console.WriteLine(error.ErrorMessage); // Optional for debugging
-            }
+            Snackbar.Add("Error creating individual.", Severity.Error);
         }
     }
 }
