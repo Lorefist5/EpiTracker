@@ -24,7 +24,7 @@ public class IndividualRepository : IIndividualRepository
         {
             Name = individual.Name,
             Age = individual.Age,
-            Symptoms = individual.Symptoms,
+            Symptoms = individual.Symptoms.ToList(),
             DateDiagnosed = individual.DateDiagnosed,
             IsDiagnosed = individual.IsDiagnosed
         };

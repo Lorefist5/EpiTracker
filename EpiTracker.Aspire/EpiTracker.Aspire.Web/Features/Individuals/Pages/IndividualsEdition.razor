@@ -2,6 +2,7 @@
 
 @using EpiTracker.Aspire.Web.Features.Individuals.Services
 @using EpiTracker.Aspire.Web.Features.Individuals.Components
+@using EpiTracker.Aspire.Web.Features.Individuals.ViewModels
 @using EpiTracker.Domain.Features.Individuals.Dtos
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -27,11 +28,11 @@
         model.DateDiagnosed = individual.DateDiagnosed;
     }
     [Parameter] public int id { get; set; }
-    private CreateIndividualDto model = new CreateIndividualDto();
+    private IndividualFormViewModel model = new ();
 
-    private async Task HandleEditSubmit(CreateIndividualDto individual)
+    private async Task HandleEditSubmit(IndividualFormViewModel individual)
     {
-        var updateIndividualDto = new UpdateIndividualDto(individual.Name, individual.Age, individual.Symptoms, individual.DateDiagnosed);
+        var updateIndividualDto = IndividualFormViewModel.ToUpdateIndividualDto(individual);
 
         var response = await IndividualApi.UpdateIndividualByIdAsync(id, updateIndividualDto);
         if (!response.IsSuccessStatusCode)

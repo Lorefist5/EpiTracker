@@ -1,6 +1,6 @@
 @using Blazored.FluentValidation
-@using EpiTracker.Application.Features.Individuals.Commands.CreateIndividual
-@using EpiTracker.Domain.Features.Individuals.Dtos
+@using EpiTracker.Aspire.Web.Features.Individuals.Validators
+@using EpiTracker.Aspire.Web.Features.Individuals.ViewModels
 @using Microsoft.AspNetCore.Components.Forms
 @using MudBlazor
 @namespace EpiTracker.Aspire.Web.Features.Individuals.Components
@@ -131,8 +131,8 @@
 </MudContainer>
 
 @code {
-    [Parameter] public CreateIndividualDto model { get; set; } = new CreateIndividualDto("", 0, new List<string>(), null);
-    [Parameter] public EventCallback<CreateIndividualDto> OnSubmit { get; set; }
+    [Parameter] public IndividualFormViewModel model { get; set; } = new IndividualFormViewModel();
+    [Parameter] public EventCallback<IndividualFormViewModel> OnSubmit { get; set; }
     [Parameter] public string ButtonText { get; set; } = "Submit";
 
     private string newSymptom = string.Empty;
@@ -140,7 +140,7 @@
     private string serverError = "";
     private string? editingSymptom = null;
     private string editingSymptomValue = "";
-    private CreateIndividualDtoValidator validator = new CreateIndividualDtoValidator();
+    private IndividualFormViewModelValidator validator = new IndividualFormViewModelValidator();
     private FluentValidationValidator? fvValidator;
 
     // Store validation errors

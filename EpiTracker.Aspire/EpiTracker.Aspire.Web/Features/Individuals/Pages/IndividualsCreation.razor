@@ -1,6 +1,7 @@
 ﻿@page "/individuals/create"
 @using EpiTracker.Aspire.Web.Features.Individuals.Services
 @using EpiTracker.Aspire.Web.Features.Individuals.Components
+@using EpiTracker.Aspire.Web.Features.Individuals.ViewModels
 @using EpiTracker.Domain.Features.Individuals.Dtos
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -15,11 +16,12 @@
 <IndividualForm model="@model" ButtonText="Create Individual" OnSubmit="HandleCreateSubmit" />
 
 @code {
-    private CreateIndividualDto model = new CreateIndividualDto();
+    private IndividualFormViewModel model = new();
 
-    private async Task HandleCreateSubmit(CreateIndividualDto individual)
+    private async Task HandleCreateSubmit(IndividualFormViewModel individual)
     {
-        var response = await IndividualApi.CreateIndividualAsync(individual);
+        var createIndividualDto = IndividualFormViewModel.ToCreateIndividualDto(individual);
+        var response = await IndividualApi.CreateIndividualAsync(createIndividualDto);
         if (response.IsSuccessStatusCode)
         {
             Snackbar.Add("Individual Created Successfully!", Severity.Success);
