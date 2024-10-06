@@ -1,0 +1,108 @@
+﻿@page "/individuals/view/{id:int}"
+@using EpiTracker.Aspire.Web.Common
+@using EpiTracker.Aspire.Web.Features.Individuals.Services
+@using EpiTracker.Aspire.Web.Features.Individuals.ViewModels
+@using EpiTracker.Aspire.Web.Features.Individuals.components
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@inject IIndividualApi IndividualApi
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<PageTitle>View Individual</PageTitle>
+
+<MudContainer Class="d-flex justify-content-center mt-4">
+    <MudGrid Class="justify-content-center">
+        <MudItem xs="12" md="10" lg="8">
+            <!-- Adjust width here for more space -->
+            @if (loading)
+            {
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            }
+            else if (individual != null)
+            {
+                <IndividualInfoCard Model="individual">
+                    <MudItem xs="12" sm="6">
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="EditIndividual" FullWidth="true">
+                            <MudIcon Icon="@Icons.Material.Filled.Edit" /> Edit
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ConfirmDelete" FullWidth="true">
+                            <MudIcon Icon="@Icons.Material.Filled.Delete" /> Delete
+                        </MudButton>
+                    </MudItem>
+                </IndividualInfoCard>
+            }
+            else
+            {
+                <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Secondary">Unable to load individual details.</MudText>
+            }
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Parameter] public int id { get; set; }
+    private IndividualDetailsViewModel? individual;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Fetch individual details by ID
+            var dto = await IndividualApi.GetIndividualByIdAsync(id);
+            individual = IndividualDetailsViewModel.FromGetIndividualDto(dto);
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Error loading individual details.", Severity.Error);
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void EditIndividual()
+    {
+        NavigationManager.NavigateTo($"/individuals/edit/{id}");
+    }
+
+    private async Task ConfirmDelete()
+    {
+        var parameters = new DialogParameters { ["ContentText"] = "Are you sure you want to delete this individual?", ["ButtonText"] = "Yes" };
+
+        var dialog = DialogService.Show<ConfirmationDialog>("Delete Confirmation", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await DeleteIndividual();
+        }
+    }
+
+    private async Task DeleteIndividual()
+    {
+        try
+        {
+            var response = await IndividualApi.DeleteIndividualByIdAsync(id);
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Individual deleted successfully.", Severity.Success);
+                NavigationManager.NavigateTo("/individuals");
+            }
+            else
+            {
+                Snackbar.Add("Error deleting individual.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error deleting individual.", Severity.Error);
+        }
+    }
+}

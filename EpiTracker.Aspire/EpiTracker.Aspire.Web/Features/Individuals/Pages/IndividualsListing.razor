@@ -1,6 +1,8 @@
 ﻿@page "/individuals"
 @using EpiTracker.Aspire.Web.Common
 @using EpiTracker.Aspire.Web.Features.Individuals.Services
+@using EpiTracker.Aspire.Web.Features.Individuals.ViewModels
+@using EpiTracker.Aspire.Web.Features.Individuals.components
 @using EpiTracker.Domain.Features.Individuals.Dtos
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -33,7 +35,7 @@
                     <MudText Typo="Typo.h5">Individuals List</MudText>
 
                     <!-- Create DataGrid -->
-                    <MudDataGrid T="GetIndividualDto" Hover="true" Bordered="true" Items="@filteredIndividuals"
+                    <MudDataGrid T="IndividualDetailsViewModel" Hover="true" Bordered="true" Items="@filteredIndividuals"
                                  SortMode="SortMode.Multiple" QuickFilter="@_quickFilter" Loading="loading" RowClick="OnRowClick">
                         <Columns>
                             <PropertyColumn Property="x => x.Name" Title="Name" />
@@ -53,77 +55,23 @@
             <div class="@((selectedIndividual != null) ? "fade-in" : "")">
                 @if (selectedIndividual != null)
                 {
-                    <MudCard Class="mb-4" Elevation="4">
-                        <MudCardContent>
-                            <MudText Typo="Typo.h5" Color="Color.Primary" Align="Align.Center">Selected Individual</MudText>
-                            <MudDivider Class="my-3" />
-
-                            <MudGrid Spacing="2">
-                                <MudItem xs="12" md="6">
-                                    <MudText Typo="Typo.h6" Color="Color.Primary"><strong>Name:</strong></MudText>
-                                    <MudText Typo="Typo.h6">@selectedIndividual.Name</MudText>
-                                </MudItem>
-
-                                <MudItem xs="12" md="6">
-                                    <MudText Typo="Typo.h6" Color="Color.Primary"><strong>Age:</strong></MudText>
-                                    <MudText Typo="Typo.h6">@selectedIndividual.Age</MudText>
-                                </MudItem>
-
-                                <MudItem xs="12">
-                                    <MudText Typo="Typo.h6" Color="Color.Primary"><strong>Date Diagnosed:</strong></MudText>
-                                    <MudText Typo="Typo.h6">
-                                        @if (selectedIndividual.DateDiagnosed != null)
-                                        {
-                                            @selectedIndividual.DateDiagnosed?.ToString("MMMM dd, yyyy")
-                                        }
-                                        else
-                                        {
-                                            <MudChip T="string" Color="Color.Warning">Not Diagnosed</MudChip>
-                                        }
-                                    </MudText>
-                                </MudItem>
-                            </MudGrid>
-
-                            <MudDivider Class="my-3" />
-
-                            <!-- Symptoms Section -->
-                            <MudText Typo="Typo.h6" Color="Color.Primary"><strong>Symptoms:</strong></MudText>
-                            @if (selectedIndividual.Symptoms != null && selectedIndividual.Symptoms.Any())
-                            {
-                                <MudStack Spacing="1">
-                                    @foreach (var symptom in selectedIndividual.Symptoms)
-                                    {
-                                        <MudChip T="string" Color="Color.Info" Icon="@Icons.Material.Filled.CheckCircle">@symptom</MudChip>
-                                    }
-                                </MudStack>
-                            }
-                            else
-                            {
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">No symptoms reported.</MudText>
-                            }
-
-                            <MudDivider Class="my-3" />
-
-                            <!-- Action Buttons -->
-                            <MudGrid Spacing="2">
-                                <MudItem xs="12" sm="4">
-                                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="() => EditIndividual(selectedIndividual.Id)" FullWidth="true">
-                                        <MudIcon Icon="@Icons.Material.Filled.Edit" /> Edit
-                                    </MudButton>
-                                </MudItem>
-                                <MudItem xs="12" sm="4">
-                                    <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="() => ConfirmDelete(selectedIndividual.Id)" FullWidth="true">
-                                        <MudIcon Icon="@Icons.Material.Filled.Delete" /> Delete
-                                    </MudButton>
-                                </MudItem>
-                                <MudItem xs="12" sm="4">
-                                    <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="() => ViewIndividual(selectedIndividual.Id)" FullWidth="true">
-                                        <MudIcon Icon="@Icons.Material.Filled.Visibility" /> View
-                                    </MudButton>
-                                </MudItem>
-                            </MudGrid>
-                        </MudCardContent>
-                    </MudCard>
+                    <IndividualInfoCard Model="selectedIndividual">
+                        <MudItem xs="12" sm="4">
+                            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="() => EditIndividual(selectedIndividual.Id)" FullWidth="true">
+                                <MudIcon Icon="@Icons.Material.Filled.Edit" /> Edit
+                            </MudButton>
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="() => ConfirmDelete(selectedIndividual.Id)" FullWidth="true">
+                                <MudIcon Icon="@Icons.Material.Filled.Delete" /> Delete
+                            </MudButton>
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="() => ViewIndividual(selectedIndividual.Id)" FullWidth="true">
+                                <MudIcon Icon="@Icons.Material.Filled.Visibility" /> View
+                            </MudButton>
+                        </MudItem>
+                    </IndividualInfoCard>
                 }
                 else
                 {
@@ -139,14 +87,14 @@
 </MudContainer>
 
 @code {
-    private List<GetIndividualDto> individuals = new();
-    private List<GetIndividualDto> filteredIndividuals = new(); // Filtered list for search
-    private GetIndividualDto? selectedIndividual;
+    private List<IndividualDetailsViewModel> individuals = new();
+    private List<IndividualDetailsViewModel> filteredIndividuals = new(); // Filtered list for search
+    private IndividualDetailsViewModel? selectedIndividual;
     private string _searchString = string.Empty; // Search query
     private bool loading = true;
 
     // Custom filter function based on search query
-    private Func<GetIndividualDto, bool> _quickFilter => x =>
+    private Func<IndividualDetailsViewModel, bool> _quickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
@@ -168,7 +116,8 @@
         try
         {
             // Fetch the individuals from the API
-            individuals = (await IndividualsApi.GetIndividualsAsync()).ToList();
+            var getIndividualDtosFetched = await IndividualsApi.GetIndividualsAsync();
+            individuals = getIndividualDtosFetched.Select(IndividualDetailsViewModel.FromGetIndividualDto).ToList();
             filteredIndividuals = individuals; // Initially, show all individuals
         }
         finally
@@ -177,12 +126,11 @@
         }
     }
 
-    private void CreateIndividual()
-    {
+    private void CreateIndividual() => 
         NavigationManager.NavigateTo("/individuals/create");
-    }
+    
 
-    private void OnRowClick(DataGridRowClickEventArgs<GetIndividualDto> args)
+    private void OnRowClick(DataGridRowClickEventArgs<IndividualDetailsViewModel> args)
     {
         selectedIndividual = args.Item; // Set the selected individual on row click
     }
@@ -218,16 +166,12 @@
         selectedIndividual = null; // Clear the selected individual after deletion
     }
 
-    private void EditIndividual(int individualId)
-    {
-        // Build the URL with the individualId as a route parameter and navigate to the edit page
+    private void EditIndividual(int individualId) => 
         NavigationManager.NavigateTo($"/individuals/edit/{individualId}");
-    }
+    
 
 
-    private void ViewIndividual(int individualId)
-    {
-        // Logic to view individual
-        Console.WriteLine($"Viewing individual with ID: {individualId}");
-    }
+    private void ViewIndividual(int individualId) => 
+    NavigationManager.NavigateTo($"/individuals/view/{individualId}");
+    
 }
